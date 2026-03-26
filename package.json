@@ -1,0 +1,12 @@
+{
+  "name": "ukrflix",
+  "version": "1.0.0",
+  "description": "Ukrflix - streaming application for Ukrainian films and TV shows",
+  "private": true,
+  "scripts": {
+    "start": "netlify dev"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
