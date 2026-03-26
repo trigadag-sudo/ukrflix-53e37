@@ -1,4 +1,5 @@
 const TMDB_API_KEY = process.env.TMDB_API_KEY || process.env.TMDB_API_KEY_1;
+const TMDB_ACCESS_TOKEN = process.env.TMDB_ACCESS_TOKEN;
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
 export default async (req, context) => {
@@ -7,7 +8,7 @@ export default async (req, context) => {
   const page = url.searchParams.get("page") || "1";
   const query = url.searchParams.get("query") || "";
 
-  if (!TMDB_API_KEY) {
+  if (!TMDB_API_KEY && !TMDB_ACCESS_TOKEN) {
     return new Response(
       JSON.stringify({ error: "TMDB API key is not configured" }),
       { status: 500, headers: { "Content-Type": "application/json" } }
@@ -15,12 +16,23 @@ export default async (req, context) => {
   }
 
   try {
-    let tmdbUrl = `${TMDB_BASE_URL}/${endpoint}?api_key=${TMDB_API_KEY}&language=uk-UA&page=${page}`;
+    let tmdbUrl = `${TMDB_BASE_URL}/${endpoint}?language=uk-UA&page=${page}`;
+    if (!TMDB_ACCESS_TOKEN) {
+      tmdbUrl += `&api_key=${TMDB_API_KEY}`;
+    }
     if (query) {
       tmdbUrl += `&query=${encodeURIComponent(query)}`;
     }
 
-    const response = await fetch(tmdbUrl);
+    const fetchOptions = {};
+    if (TMDB_ACCESS_TOKEN) {
+      fetchOptions.headers = {
+        Authorization: `Bearer ${TMDB_ACCESS_TOKEN}`,
+        accept: "application/json",
+      };
+    }
+
+    const response = await fetch(tmdbUrl, fetchOptions);
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {
