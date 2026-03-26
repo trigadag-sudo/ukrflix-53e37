@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ukrflix — Українське кіно</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, transparent 100%);
+      padding: 1rem 2rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ffe600;
+      letter-spacing: 2px;
+    }
+    nav a {
+      color: #ccc;
+      text-decoration: none;
+      margin-left: 1.5rem;
+      font-size: 0.95rem;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: #fff; }
+    .hero {
+      position: relative;
+      height: 70vh;
+      display: flex;
+      align-items: flex-end;
+      padding: 3rem 2rem;
+      background: linear-gradient(to top, #0d0d0d 0%, transparent 60%),
+                  linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    }
+    .hero-content { max-width: 600px; }
+    .hero h1 { font-size: 2.8rem; margin-bottom: 0.5rem; }
+    .hero p { color: #bbb; font-size: 1.1rem; line-height: 1.5; margin-bottom: 1.5rem; }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 2rem;
+      background: #ffe600;
+      color: #000;
+      font-weight: 700;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #ffd000; }
+    .section { padding: 2rem; }
+    .section h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #ffe600; }
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.2rem;
+    }
+    .movie-card {
+      background: #1a1a1a;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .movie-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(255, 230, 0, 0.15);
+    }
+    .movie-card img {
+      width: 100%;
+      height: 270px;
+      object-fit: cover;
+      display: block;
+    }
+    .movie-card .info {
+      padding: 0.75rem;
+    }
+    .movie-card .title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .movie-card .meta {
+      font-size: 0.8rem;
+      color: #999;
+      margin-top: 0.25rem;
+      display: flex;
+      justify-content: space-between;
+    }
+    .rating { color: #ffe600; font-weight: 700; }
+    .search-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      max-width: 500px;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.6rem 1rem;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .search-bar input:focus { border-color: #ffe600; }
+    .search-bar button {
+      padding: 0.6rem 1.2rem;
+      background: #ffe600;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #666;
+      font-size: 1.1rem;
+    }
+    .error-msg {
+      text-align: center;
+      padding: 2rem;
+      color: #ff5555;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #555;
+      font-size: 0.85rem;
+      border-top: 1px solid #222;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">UKRFLIX</div>
+    <nav>
+      <a href="#popular">Популярне</a>
+      <a href="#search">Пошук</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="hero-content">
+      <h1>Українське кіно та серіали</h1>
+      <p>Відкрийте для себе найкращі українські фільми, серіали та документальне кіно. Ukrflix — ваша платформа для українського контенту.</p>
+      <a href="#popular" class="btn">Дивитися зараз</a>
+    </div>
+  </div>
+
+  <div class="section" id="search">
+    <h2>Пошук фільмів</h2>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Введіть назву фільму..." />
+      <button onclick="searchMovies()">Шукати</button>
+    </div>
+    <div id="searchResults" class="movies-grid"></div>
+  </div>
+
+  <div class="section" id="popular">
+    <h2>Популярні фільми</h2>
+    <div id="popularMovies" class="movies-grid">
+      <div class="loading">Завантаження...</div>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 Ukrflix. Дані надані TMDB.
+  </footer>
+
+  <script>
+    const IMG_BASE = "https://image.tmdb.org/t/p/w500";
+    const PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='750' fill='%231a1a1a'%3E%3Crect width='500' height='750'/%3E%3Ctext x='250' y='375' text-anchor='middle' fill='%23555' font-size='20'%3EНемає постера%3C/text%3E%3C/svg%3E";
+
+    function renderMovies(movies, containerId) {
+      const container = document.getElementById(containerId);
+      if (!movies || movies.length === 0) {
+        container.innerHTML = '<div class="loading">Нічого не знайдено</div>';
+        return;
+      }
+      container.innerHTML = movies.map(m => `
+        <div class="movie-card">
+          <img src="${m.poster_path ? IMG_BASE + m.poster_path : PLACEHOLDER}" alt="${m.title}" loading="lazy" />
+          <div class="info">
+            <div class="title">${m.title}</div>
+            <div class="meta">
+              <span>${(m.release_date || '').slice(0, 4)}</span>
+              <span class="rating">${m.vote_average ? m.vote_average.toFixed(1) : '—'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function fetchMovies(endpoint, page, query) {
+      const params = new URLSearchParams({ endpoint, page });
+      if (query) params.set("query", query);
+      const res = await fetch("/api/tmdb-proxy?" + params.toString());
+      if (!res.ok) throw new Error("API error");
+      return res.json();
+    }
+
+    async function loadPopular() {
+      try {
+        const data = await fetchMovies("movie/popular", "1");
+        renderMovies(data.results, "popularMovies");
+      } catch (e) {
+        document.getElementById("popularMovies").innerHTML =
+          '<div class="error-msg">Не вдалося завантажити фільми. Перевірте налаштування API ключа TMDB.</div>';
+      }
+    }
+
+    async function searchMovies() {
+      const query = document.getElementById("searchInput").value.trim();
+      if (!query) return;
+      const container = document.getElementById("searchResults");
+      container.innerHTML = '<div class="loading">Шукаємо...</div>';
+      try {
+        const data = await fetchMovies("search/movie", "1", query);
+        renderMovies(data.results, "searchResults");
+      } catch (e) {
+        container.innerHTML = '<div class="error-msg">Помилка пошуку</div>';
+      }
+    }
+
+    document.getElementById("searchInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") searchMovies();
+    });
+
+    loadPopular();
+  </script>
+</body>
+</html>
